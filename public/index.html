@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cinema Video</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="logo">
+            <span class="pulse-dot"></span>
+            🎬 Cinema <span class="highlight">Video</span>
+        </div>
+        <div class="controls">
+            <select id="languageSelect" class="glass-select">
+                <option value="pt">Ouvindo em: Português</option>
+                <option value="tl">Listening in: Tagalog</option>
+            </select>
+            <input type="text" id="usernameInput" class="glass-input" placeholder="Seu Nome / Name" value="Guest">
+        </div>
+    </header>
+
+    <main class="app-container">
+        <section class="video-section">
+            <div class="video-input">
+                <input type="text" id="youtubeUrl" class="glass-input fluid" placeholder="Link do YouTube / YouTube URL">
+                <button id="loadVideoBtn" class="premium-btn" style="white-space: nowrap;">YouTube 🌐</button>
+            </div>
+            <div class="video-input">
+                <label class="premium-btn fluid" style="text-align:center; cursor:pointer; background: linear-gradient(135deg, #10ac84, #1dd1a1);">
+                    📂 Carregar Arquivo de Vídeo (Seu PC/Celular)
+                    <input type="file" id="localVideoFile" accept="video/*" style="display:none;">
+                </label>
+            </div>
+            <div class="video-wrapper glass-panel">
+                <div id="player"></div>
+                <video id="html5Player" controls playsinline style="width: 100%; height: 100%; display: none; border-radius: 16px; object-fit: contain;"></video>
+                <div id="videoPlaceholder" class="video-placeholder">
+                    <h2>Nenhum vídeo carregado 🎬</h2>
+                    <p>Cole um link do YouTube ou abra um arquivo.</p>
+                    <p style="font-size: 11px; opacity: 0.5; margin-top: 5px;">Aviso: Para arquivos, ambas pessoas devem ter e selecionar o mesmo vídeo em seus aparelhos para a sincronização funcionar perfeitamente.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="chat-section glass-panel">
+            <div class="chat-header">
+                <h3>Vibes & Chat ✨</h3>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message system">
+                    <span>Bem-vindo à sala isolada! Tudo será traduzido em tempo real.</span>
+                </div>
+            </div>
+            
+            <div class="chat-controls">
+                <div class="wink-bar">
+                    <button class="wink-btn" data-wink="laugh">🤣</button>
+                    <button class="wink-btn" data-wink="heart">💖</button>
+                    <button class="wink-btn" data-wink="knock">✊ Chamar Atenção</button>
+                </div>
+                <div class="input-area" style="position: relative;">
+                    <!-- Emoji Picker absolute container -->
+                    <div id="emojiPickerContainer" style="display: none; position: absolute; bottom: 50px; left: 0; z-index: 1000;">
+                        <emoji-picker class="dark" style="--num-columns: 6; --emoji-size: 1.2rem; --indicator-color: var(--primary);"></emoji-picker>
+                    </div>
+                    
+                    <button id="emojiBtn" title="Adicionar Emoji" style="background:none; border:none; padding:0; cursor:pointer; font-size:22px; margin-right:4px; align-items:center; display:flex; filter: grayscale(100%); transition: 0.3s;" onmouseover="this.style.filter='grayscale(0%)'" onmouseout="this.style.filter='grayscale(100%)'">😀</button>
+                    <label style="cursor:pointer; padding:0; margin:0; font-size:22px; margin-right:4px; align-items:center; display:flex; filter: grayscale(100%); transition: 0.3s;" onmouseover="this.style.filter='grayscale(0%)'" onmouseout="this.style.filter='grayscale(100%)'" title="Enviar Imagem">
+                        🖼️
+                        <input type="file" id="chatImageInput" accept="image/*" style="display:none;">
+                    </label>
+                    <input type="text" id="chatInput" placeholder="Mensagem / Message...">
+                    <button id="sendBtn" class="send-btn">→</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Overlay for Winks (MSN Style) -->
+    <div id="winkOverlay" class="wink-overlay">
+        <!-- Will be populated dynamically -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
