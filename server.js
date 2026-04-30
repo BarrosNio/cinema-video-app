@@ -9,7 +9,10 @@ app.use(cors());
 app.use(express.static('public'));
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { 
+    cors: { origin: '*' },
+    maxHttpBufferSize: 5e7 // 50 MB limits
+});
 
 // Translate message utility
 async function translateMessage(text, sourceLang) {
