@@ -26,22 +26,15 @@
     <main class="app-container">
         <section class="video-section">
             <div class="video-input">
-                <input type="text" id="youtubeUrl" class="glass-input fluid" placeholder="Link do YouTube / YouTube URL">
-                <button id="loadVideoBtn" class="premium-btn" style="white-space: nowrap;">YouTube 🌐</button>
-            </div>
-            <div class="video-input">
-                <label class="premium-btn fluid" style="text-align:center; cursor:pointer; background: linear-gradient(135deg, #10ac84, #1dd1a1);">
-                    📂 Carregar Arquivo de Vídeo (Seu PC/Celular)
-                    <input type="file" id="localVideoFile" accept="video/*" style="display:none;">
-                </label>
+                <input type="text" id="directVideoUrl" class="glass-input fluid" placeholder="Link do Dropbox ou MP4 / Dropbox or MP4 URL">
+                <button id="loadDirectVideoBtn" class="premium-btn" style="white-space: nowrap; background: linear-gradient(135deg, #0061FF, #60A5FA);">Dropbox ☁️</button>
             </div>
             <div class="video-wrapper glass-panel">
-                <div id="player"></div>
                 <video id="html5Player" controls playsinline style="width: 100%; height: 100%; display: none; border-radius: 16px; object-fit: contain;"></video>
                 <div id="videoPlaceholder" class="video-placeholder">
                     <h2>Nenhum vídeo carregado 🎬</h2>
-                    <p>Cole um link do YouTube ou abra um arquivo.</p>
-                    <p style="font-size: 11px; opacity: 0.5; margin-top: 5px;">Aviso: Para arquivos, ambas pessoas devem ter e selecionar o mesmo vídeo em seus aparelhos para a sincronização funcionar perfeitamente.</p>
+                    <p>Cole um link do Dropbox para assistir sincronizado.</p>
+
                 </div>
             </div>
         </section>
@@ -86,7 +79,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://www.youtube.com/iframe_api"></script>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js"></script>
 </body>

@@ -28,124 +28,62 @@ const winkOverlay = document.getElementById('winkOverlay');
 const winkBtns = document.querySelectorAll('.wink-btn');
 
 // Video UI Elements
-const loadVideoBtn = document.getElementById('loadVideoBtn');
-const youtubeUrlInput = document.getElementById('youtubeUrl');
-const localVideoFileInput = document.getElementById('localVideoFile');
+const directVideoUrlInput = document.getElementById('directVideoUrl');
+const loadDirectVideoBtn = document.getElementById('loadDirectVideoBtn');
 const videoPlaceholder = document.getElementById('videoPlaceholder');
 const html5Player = document.getElementById('html5Player');
-const ytPlayerContainer = document.getElementById('player');
 
 // --- Video Player State ---
-let ytPlayer;
-let isYtReady = false;
 let isSyncing = false;
-let activeMode = null; // 'youtube' or 'local'
+let activeMode = null; // 'direct'
 
 function setDisplayMode(mode) {
     activeMode = mode;
     videoPlaceholder.style.display = 'none';
-    if (mode === 'youtube') {
-        html5Player.style.display = 'none';
-        html5Player.pause();
-        ytPlayerContainer.style.display = 'block';
-        ytPlayerContainer.classList.add('active');
-    } else if (mode === 'local') {
-        ytPlayerContainer.style.display = 'none';
-        ytPlayerContainer.classList.remove('active');
-        if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
+    if (mode === 'direct') {
         html5Player.style.display = 'block';
     }
 }
 
-// --- Local HTML5 Player Logic ---
-localVideoFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const fileURL = URL.createObjectURL(file);
-    html5Player.src = fileURL;
-    setDisplayMode('local');
-    
-    // Notify the room that we switched to local mode
-    // (Other users will need to manually select their file to see the image, but controls will sync!)
-    socket.emit('video-change', { type: 'local', msg: 'Usuário mudou para modo arquivo local.' });
-});
-
 html5Player.addEventListener('play', () => {
-    if (isSyncing || activeMode !== 'local') return;
+    if (isSyncing || activeMode !== 'direct') return;
     socket.emit('video-play', html5Player.currentTime);
 });
 
 html5Player.addEventListener('pause', () => {
-    if (isSyncing || activeMode !== 'local') return;
+    if (isSyncing || activeMode !== 'direct') return;
     socket.emit('video-pause', html5Player.currentTime);
 });
 
-// --- YouTube Player Logic ---
-function extractVideoID(url) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
-
-function onYouTubeIframeAPIReady() {
-    console.log("YouTube API Ready");
-}
-
-function initYtPlayer(videoId) {
-    setDisplayMode('youtube');
-    if (!ytPlayer) {
-        ytPlayer = new YT.Player('player', {
-            height: '100%',
-            width: '100%',
-            videoId: videoId,
-            playerVars: { 'playsinline': 1, 'rel': 0 },
-            events: {
-                'onReady': () => { isYtReady = true; },
-                'onStateChange': onYtPlayerStateChange
-            }
-        });
-    } else {
-        ytPlayer.loadVideoById(videoId);
+loadDirectVideoBtn.addEventListener('click', () => {
+    let url = directVideoUrlInput.value.trim();
+    if (!url) return;
+    
+    // Auto-convert Dropbox links from dl=0 to raw=1
+    if (url.includes('dropbox.com')) {
+        url = url.replace('dl=0', 'raw=1');
+        if (!url.includes('raw=1')) {
+            url += (url.includes('?') ? '&' : '?') + 'raw=1';
+        }
     }
-}
-
-function onYtPlayerStateChange(event) {
-    if (isSyncing || activeMode !== 'youtube') return;
-    if (event.data == YT.PlayerState.PLAYING) {
-        socket.emit('video-play', ytPlayer.getCurrentTime());
-    } else if (event.data == YT.PlayerState.PAUSED) {
-        socket.emit('video-pause', ytPlayer.getCurrentTime());
-    }
-}
-
-loadVideoBtn.addEventListener('click', () => {
-    const url = youtubeUrlInput.value;
-    const videoId = extractVideoID(url);
-    if (videoId) {
-        initYtPlayer(videoId);
-        socket.emit('video-change', { type: 'youtube', id: videoId });
-    } else {
-        alert('URL do YouTube inválida!');
-    }
+    
+    html5Player.src = url;
+    setDisplayMode('direct');
+    
+    socket.emit('video-change', { type: 'direct', url: url });
 });
 
 // --- Socket Sync Events ---
 socket.on('video-change', (data) => {
-    if (data.type === 'youtube') {
-        initYtPlayer(data.id);
-    } else if (data.type === 'local') {
-        // We can't automatically grab local files from another machine for security.
-        alert('O outro usuário mudou para Arquivo de Vídeo. Por favor, carregue o mesmo arquivo no botão "Carregar Arquivo" para que a sincronização funcione!');
+    if (data.type === 'direct') {
+        html5Player.src = data.url;
+        setDisplayMode('direct');
     }
 });
 
 socket.on('video-play', (time) => {
     isSyncing = true;
-    if (activeMode === 'youtube' && isYtReady && ytPlayer) {
-        ytPlayer.seekTo(time);
-        ytPlayer.playVideo();
-    } else if (activeMode === 'local') {
+    if (activeMode === 'direct') {
         html5Player.currentTime = time;
         html5Player.play();
     }
@@ -154,10 +92,7 @@ socket.on('video-play', (time) => {
 
 socket.on('video-pause', (time) => {
     isSyncing = true;
-    if (activeMode === 'youtube' && isYtReady && ytPlayer) {
-        ytPlayer.seekTo(time);
-        ytPlayer.pauseVideo();
-    } else if (activeMode === 'local') {
+    if (activeMode === 'direct') {
         html5Player.currentTime = time;
         html5Player.pause();
     }
