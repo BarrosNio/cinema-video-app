@@ -28,19 +28,32 @@ const winkOverlay = document.getElementById('winkOverlay');
 const winkBtns = document.querySelectorAll('.wink-btn');
 
 // Video UI Elements
+const loadVideoBtn = document.getElementById('loadVideoBtn');
+const youtubeUrlInput = document.getElementById('youtubeUrl');
 const directVideoUrlInput = document.getElementById('directVideoUrl');
 const loadDirectVideoBtn = document.getElementById('loadDirectVideoBtn');
 const videoPlaceholder = document.getElementById('videoPlaceholder');
 const html5Player = document.getElementById('html5Player');
+const ytPlayerContainer = document.getElementById('player');
 
 // --- Video Player State ---
+let ytPlayer;
+let isYtReady = false;
 let isSyncing = false;
-let activeMode = null; // 'direct'
+let activeMode = null; // 'direct' or 'youtube'
 
 function setDisplayMode(mode) {
     activeMode = mode;
     videoPlaceholder.style.display = 'none';
-    if (mode === 'direct') {
+    if (mode === 'youtube') {
+        html5Player.style.display = 'none';
+        html5Player.pause();
+        ytPlayerContainer.style.display = 'block';
+        ytPlayerContainer.classList.add('active');
+    } else if (mode === 'direct') {
+        ytPlayerContainer.style.display = 'none';
+        ytPlayerContainer.classList.remove('active');
+        if (ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo();
         html5Player.style.display = 'block';
     }
 }
@@ -53,6 +66,55 @@ html5Player.addEventListener('play', () => {
 html5Player.addEventListener('pause', () => {
     if (isSyncing || activeMode !== 'direct') return;
     socket.emit('video-pause', html5Player.currentTime);
+});
+
+// --- YouTube Player Logic ---
+function extractVideoID(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function onYouTubeIframeAPIReady() {
+    console.log("YouTube API Ready");
+}
+
+function initYtPlayer(videoId) {
+    setDisplayMode('youtube');
+    if (!ytPlayer) {
+        ytPlayer = new YT.Player('player', {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: { 'playsinline': 1, 'rel': 0 },
+            events: {
+                'onReady': () => { isYtReady = true; },
+                'onStateChange': onYtPlayerStateChange
+            }
+        });
+    } else {
+        ytPlayer.loadVideoById(videoId);
+    }
+}
+
+function onYtPlayerStateChange(event) {
+    if (isSyncing || activeMode !== 'youtube') return;
+    if (event.data == YT.PlayerState.PLAYING) {
+        socket.emit('video-play', ytPlayer.getCurrentTime());
+    } else if (event.data == YT.PlayerState.PAUSED) {
+        socket.emit('video-pause', ytPlayer.getCurrentTime());
+    }
+}
+
+loadVideoBtn.addEventListener('click', () => {
+    const url = youtubeUrlInput.value;
+    const videoId = extractVideoID(url);
+    if (videoId) {
+        initYtPlayer(videoId);
+        socket.emit('video-change', { type: 'youtube', id: videoId });
+    } else {
+        alert('URL do YouTube inválida!');
+    }
 });
 
 loadDirectVideoBtn.addEventListener('click', () => {
@@ -75,7 +137,9 @@ loadDirectVideoBtn.addEventListener('click', () => {
 
 // --- Socket Sync Events ---
 socket.on('video-change', (data) => {
-    if (data.type === 'direct') {
+    if (data.type === 'youtube') {
+        initYtPlayer(data.id);
+    } else if (data.type === 'direct') {
         html5Player.src = data.url;
         setDisplayMode('direct');
     }
@@ -83,7 +147,10 @@ socket.on('video-change', (data) => {
 
 socket.on('video-play', (time) => {
     isSyncing = true;
-    if (activeMode === 'direct') {
+    if (activeMode === 'youtube' && isYtReady && ytPlayer) {
+        ytPlayer.seekTo(time);
+        ytPlayer.playVideo();
+    } else if (activeMode === 'direct') {
         html5Player.currentTime = time;
         html5Player.play();
     }
@@ -92,7 +159,10 @@ socket.on('video-play', (time) => {
 
 socket.on('video-pause', (time) => {
     isSyncing = true;
-    if (activeMode === 'direct') {
+    if (activeMode === 'youtube' && isYtReady && ytPlayer) {
+        ytPlayer.seekTo(time);
+        ytPlayer.pauseVideo();
+    } else if (activeMode === 'direct') {
         html5Player.currentTime = time;
         html5Player.pause();
     }

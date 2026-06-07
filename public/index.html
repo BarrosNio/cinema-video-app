@@ -26,10 +26,15 @@
     <main class="app-container">
         <section class="video-section">
             <div class="video-input">
+                <input type="text" id="youtubeUrl" class="glass-input fluid" placeholder="Link do YouTube / YouTube URL">
+                <button id="loadVideoBtn" class="premium-btn" style="white-space: nowrap;">YouTube 🌐</button>
+            </div>
+            <div class="video-input">
                 <input type="text" id="directVideoUrl" class="glass-input fluid" placeholder="Link do Dropbox ou MP4 / Dropbox or MP4 URL">
                 <button id="loadDirectVideoBtn" class="premium-btn" style="white-space: nowrap; background: linear-gradient(135deg, #0061FF, #60A5FA);">Dropbox ☁️</button>
             </div>
             <div class="video-wrapper glass-panel">
+                <div id="player"></div>
                 <video id="html5Player" controls playsinline style="width: 100%; height: 100%; display: none; border-radius: 16px; object-fit: contain;"></video>
                 <div id="videoPlaceholder" class="video-placeholder">
                     <h2>Nenhum vídeo carregado 🎬</h2>
@@ -79,7 +84,7 @@
     </div>
 
     <!-- Scripts -->
-
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js"></script>
 </body>
