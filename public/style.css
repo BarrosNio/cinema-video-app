@@ -23,7 +23,8 @@ body {
     color: var(--text-main);
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100dvh;
+    height: -webkit-fill-available;
     overflow: hidden;
 }
 
@@ -104,6 +105,7 @@ body {
     padding: 24px;
     gap: 24px;
     overflow: hidden;
+    min-height: 0;
 }
 
 .video-section {
@@ -149,6 +151,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    min-height: 0;
 }
 .chat-header {
     padding: 16px;
