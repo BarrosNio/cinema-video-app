@@ -31,11 +31,12 @@ const winkBtns = document.querySelectorAll('.wink-btn');
 const loadVideoBtn = document.getElementById('loadVideoBtn');
 const youtubeUrlInput = document.getElementById('youtubeUrl');
 const localVideoFile = document.getElementById('localVideoFile');
+const subtitleFile = document.getElementById('subtitleFile');
 const videoPlaceholder = document.getElementById('videoPlaceholder');
 const html5Player = document.getElementById('html5Player');
 const ytPlayerContainer = document.getElementById('player');
 
-// --- Video Player State ---
+// ...
 let ytPlayer;
 let isYtReady = false;
 let isSyncing = false;
@@ -125,6 +126,40 @@ localVideoFile.addEventListener('change', (e) => {
     setDisplayMode('direct');
     
     socket.emit('video-change', { type: 'local', filename: file.name });
+});
+
+subtitleFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        let text = event.target.result;
+        
+        // Convert SRT to VTT automatically if needed
+        if (file.name.toLowerCase().endsWith('.srt') || !text.startsWith('WEBVTT')) {
+            text = "WEBVTT\n\n" + text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+        }
+
+        const blob = new Blob([text], { type: 'text/vtt' });
+        const url = URL.createObjectURL(blob);
+        
+        // Remove existing tracks
+        while (html5Player.firstChild) {
+            html5Player.removeChild(html5Player.firstChild);
+        }
+
+        const track = document.createElement('track');
+        track.kind = 'captions';
+        track.label = 'Legenda';
+        track.srclang = 'en';
+        track.src = url;
+        track.default = true;
+        
+        html5Player.appendChild(track);
+        html5Player.textTracks[0].mode = 'showing';
+    };
+    reader.readAsText(file);
 });
 
 // --- Socket Sync Events ---
