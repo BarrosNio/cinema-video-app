@@ -205,6 +205,8 @@ body {
 .input-area {
     display: flex;
     gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
 }
 #chatInput {
     flex: 1;
@@ -267,9 +269,13 @@ body {
 /* Mobile Responsiveness */
 @media screen and (max-width: 768px) {
     .app-header {
-        flex-direction: column;
-        padding: 12px;
-        gap: 12px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    .logo {
+        font-size: 18px;
     }
     .controls {
         width: 100%;
@@ -277,32 +283,43 @@ body {
         gap: 8px;
     }
     .glass-select, .glass-input {
-        width: 50%;
-        padding: 8px;
-        font-size: 13px;
+        width: 48%;
+        padding: 6px;
+        font-size: 12px;
     }
     .app-container {
         flex-direction: column;
-        padding: 12px;
-        gap: 12px;
+        padding: 8px;
+        gap: 8px;
     }
     .video-section {
         flex: none;
-        height: 35vh;
-        gap: 8px;
+        gap: 6px;
     }
     .video-input {
-        flex-direction: column;
-        gap: 8px;
+        flex-direction: row;
+        gap: 6px;
+        flex-wrap: wrap;
     }
-    .premium-btn {
+    .video-input > * {
+        flex: 1;
+        min-width: 140px;
+        font-size: 12px;
+        padding: 8px;
+    }
+    .video-wrapper {
         width: 100%;
+        aspect-ratio: 16 / 9;
+        min-height: auto;
     }
     .chat-section {
         flex: 1;
         min-width: 100%;
     }
+    .chat-header {
+        padding: 8px;
+    }
     .wink-anim {
-        font-size: 8rem;
+        font-size: 6rem;
     }
 }

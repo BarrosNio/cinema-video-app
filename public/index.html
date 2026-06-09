@@ -17,7 +17,7 @@
         <div class="controls">
             <select id="languageSelect" class="glass-select">
                 <option value="pt">Ouvindo em: Português</option>
-                <option value="tl">Listening in: Tagalog</option>
+                <option value="en">Listening in: English</option>
             </select>
             <input type="text" id="usernameInput" class="glass-input" placeholder="Seu Nome / Name" value="Guest">
         </div>
@@ -30,8 +30,10 @@
                 <button id="loadVideoBtn" class="premium-btn" style="white-space: nowrap;">YouTube 🌐</button>
             </div>
             <div class="video-input">
-                <input type="text" id="directVideoUrl" class="glass-input fluid" placeholder="Link do Dropbox ou MP4 / Dropbox or MP4 URL">
-                <button id="loadDirectVideoBtn" class="premium-btn" style="white-space: nowrap; background: linear-gradient(135deg, #0061FF, #60A5FA);">Dropbox ☁️</button>
+                <label class="premium-btn fluid" style="text-align:center; cursor:pointer; background: linear-gradient(135deg, #10ac84, #1dd1a1);">
+                    📂 Carregar Arquivo de Vídeo (Seu PC/Celular)
+                    <input type="file" id="localVideoFile" accept="video/*" style="display:none;">
+                </label>
             </div>
             <div class="video-wrapper glass-panel">
                 <div id="player"></div>

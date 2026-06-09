@@ -21,7 +21,7 @@ const languageSelect = document.getElementById('languageSelect');
 // Auto-detect browser language to help the user in the Philippines
 const browserLang = navigator.language || navigator.userLanguage;
 if (browserLang && !browserLang.toLowerCase().includes('pt')) {
-    languageSelect.value = 'tl';
+    languageSelect.value = 'en';
 }
 
 const winkOverlay = document.getElementById('winkOverlay');
@@ -30,8 +30,7 @@ const winkBtns = document.querySelectorAll('.wink-btn');
 // Video UI Elements
 const loadVideoBtn = document.getElementById('loadVideoBtn');
 const youtubeUrlInput = document.getElementById('youtubeUrl');
-const directVideoUrlInput = document.getElementById('directVideoUrl');
-const loadDirectVideoBtn = document.getElementById('loadDirectVideoBtn');
+const localVideoFile = document.getElementById('localVideoFile');
 const videoPlaceholder = document.getElementById('videoPlaceholder');
 const html5Player = document.getElementById('html5Player');
 const ytPlayerContainer = document.getElementById('player');
@@ -117,31 +116,23 @@ loadVideoBtn.addEventListener('click', () => {
     }
 });
 
-loadDirectVideoBtn.addEventListener('click', () => {
-    let url = directVideoUrlInput.value.trim();
-    if (!url) return;
+localVideoFile.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     
-    // Auto-convert Dropbox links from dl=0 to raw=1
-    if (url.includes('dropbox.com')) {
-        url = url.replace('dl=0', 'raw=1');
-        if (!url.includes('raw=1')) {
-            url += (url.includes('?') ? '&' : '?') + 'raw=1';
-        }
-    }
-    
+    const url = URL.createObjectURL(file);
     html5Player.src = url;
     setDisplayMode('direct');
     
-    socket.emit('video-change', { type: 'direct', url: url });
+    socket.emit('video-change', { type: 'local', filename: file.name });
 });
 
 // --- Socket Sync Events ---
 socket.on('video-change', (data) => {
     if (data.type === 'youtube') {
         initYtPlayer(data.id);
-    } else if (data.type === 'direct') {
-        html5Player.src = data.url;
-        setDisplayMode('direct');
+    } else if (data.type === 'local') {
+        alert('O outro usuário selecionou o arquivo: ' + data.filename + '\nPor favor, clique em "Carregar Arquivo" e selecione o mesmo arquivo de vídeo no seu aparelho para sincronizar as telas.');
     }
 });
 
