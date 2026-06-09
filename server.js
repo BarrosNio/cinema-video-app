@@ -17,7 +17,7 @@ const io = new Server(server, {
 // Translate message utility
 async function translateMessage(text, sourceLang) {
     try {
-        const targetLang = sourceLang === 'pt' ? 'tl' : 'pt'; // pt -> tagalog, or anything else -> pt
+        const targetLang = sourceLang === 'pt' ? 'en' : 'pt'; // pt -> english, or anything else -> pt
         const res = await translate(text, { to: targetLang });
         return { original: text, translated: res.text };
     } catch (err) {
