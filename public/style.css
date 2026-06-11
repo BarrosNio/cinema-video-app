@@ -113,6 +113,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-height: 200px;
 }
 .video-input {
     display: flex;
@@ -136,7 +137,7 @@ body {
     pointer-events: none;
     transition: 0.5s opacity;
 }
-#player.active {
+#player.active, iframe#player {
     opacity: 1;
     pointer-events: auto;
 }
@@ -151,7 +152,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 0;
+    min-height: 250px; /* Previne que o chat suma na tela dividida */
 }
 .chat-header {
     padding: 16px;
