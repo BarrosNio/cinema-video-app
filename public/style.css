@@ -113,7 +113,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    min-height: 200px;
+    min-height: 0;
 }
 .video-input {
     display: flex;
@@ -152,7 +152,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    min-height: 250px; /* Previne que o chat suma na tela dividida */
+    min-height: 0;
 }
 .chat-header {
     padding: 16px;
@@ -166,6 +166,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    min-height: 0;
 }
 .message {
     max-width: 85%;
@@ -272,6 +273,18 @@ body {
 
 /* Mobile Responsiveness */
 @media screen and (max-width: 768px) {
+    body {
+        height: auto;
+        min-height: 100dvh;
+        overflow-y: auto;
+    }
+    .app-container {
+        flex-direction: column;
+        padding: 8px;
+        gap: 8px;
+        height: auto;
+        overflow: visible;
+    }
     .app-header {
         flex-direction: row;
         flex-wrap: wrap;
@@ -318,8 +331,9 @@ body {
         max-height: 30vh;
     }
     .chat-section {
-        flex: 1;
+        flex: none;
         min-width: 100%;
+        height: 60vh;
     }
     .chat-header {
         padding: 8px;
