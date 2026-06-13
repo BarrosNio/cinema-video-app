@@ -49,6 +49,10 @@ io.on('connection', (socket) => {
         socket.to('watch-party').emit('video-change', videoId);
     });
 
+    socket.on('game-change', (url) => {
+        socket.to('watch-party').emit('game-change', url);
+    });
+
     // Chat
     socket.on('chat-message', async (data) => {
         // data: { text: "hello", userLang: "pt", username: "User1" }
