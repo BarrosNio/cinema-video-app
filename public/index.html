@@ -31,6 +31,11 @@
             </div>
 
             <div class="video-input">
+                <input type="text" id="gameUrl" class="glass-input fluid" placeholder="Link do Jogo Web / Web Game URL">
+                <button type="button" id="loadGameBtn" class="premium-btn" style="white-space: nowrap; background: linear-gradient(135deg, #ff4757, #ff6b81);">Jogo Web 🎮</button>
+            </div>
+
+            <div class="video-input">
                 <label class="premium-btn fluid" style="text-align:center; cursor:pointer; background: linear-gradient(135deg, #10ac84, #1dd1a1);">
                     📂 Arquivo de Vídeo
                     <input type="file" id="localVideoFile" accept="video/*" style="display:none;">
@@ -43,9 +48,10 @@
             <div class="video-wrapper glass-panel">
                 <div id="player"></div>
                 <video id="html5Player" controls playsinline style="width: 100%; height: 100%; display: none; border-radius: 16px; object-fit: contain;"></video>
+                <iframe id="gamePlayer" style="width: 100%; height: 100%; display: none; border-radius: 16px; border: none; background: #000;" allow="autoplay; fullscreen"></iframe>
                 <div id="videoPlaceholder" class="video-placeholder">
-                    <h2>Nenhum vídeo carregado 🎬</h2>
-                    <p>Cole um link do YouTube ou carregue um Arquivo de Vídeo para assistir.</p>
+                    <h2>Nenhuma atividade 🎬</h2>
+                    <p>Cole um link do YouTube, Arquivo de Vídeo ou um Jogo Web para iniciar.</p>
                 </div>
             </div>
         </section>
