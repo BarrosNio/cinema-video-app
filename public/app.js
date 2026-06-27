@@ -32,12 +32,12 @@ const loadVideoBtn = document.getElementById('loadVideoBtn');
 const youtubeUrlInput = document.getElementById('youtubeUrl');
 const localVideoFile = document.getElementById('localVideoFile');
 const subtitleFile = document.getElementById('subtitleFile');
+const webUrlInput = document.getElementById('webUrl');
+const loadWebBtn = document.getElementById('loadWebBtn');
+const webIframe = document.getElementById('webIframe');
 const videoPlaceholder = document.getElementById('videoPlaceholder');
 const html5Player = document.getElementById('html5Player');
 const ytPlayerContainer = document.getElementById('player');
-const gameUrlInput = document.getElementById('gameUrl');
-const loadGameBtn = document.getElementById('loadGameBtn');
-const gamePlayer = document.getElementById('gamePlayer');
 
 // ...
 let ytPlayer;
@@ -49,29 +49,36 @@ function setDisplayMode(mode) {
     activeMode = mode;
     videoPlaceholder.style.display = 'none';
     
-    // Reset all displays
-    html5Player.style.display = 'none';
-    gamePlayer.style.display = 'none';
-    if (ytPlayerContainer) {
-        ytPlayerContainer.style.display = 'none';
-        ytPlayerContainer.classList.remove('active');
+    // Hide the input fields on mobile after loading to save space
+    if (window.innerWidth <= 768) {
+        document.querySelectorAll('.video-input').forEach(el => el.classList.add('hidden'));
     }
-    
-    // Pause any playing media
-    html5Player.pause();
-    if (ytPlayer && ytPlayer.pauseVideo && mode !== 'youtube') {
-        ytPlayer.pauseVideo();
-    }
-    
+
     if (mode === 'youtube') {
-        if (ytPlayerContainer) {
-            ytPlayerContainer.style.display = 'block';
-            ytPlayerContainer.classList.add('active');
+        html5Player.style.display = 'none';
+        html5Player.pause();
+        webIframe.style.display = 'none';
+        if (webIframe.src) webIframe.src = '';
+        ytPlayerContainer.style.display = 'block';
+        ytPlayerContainer.classList.add('active');
+    } else if (mode === 'direct' || mode === 'local') {
+        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+            ytPlayer.pauseVideo();
         }
-    } else if (mode === 'direct') {
+        ytPlayerContainer.classList.remove('active');
+        ytPlayerContainer.style.display = 'none';
+        webIframe.style.display = 'none';
+        if (webIframe.src) webIframe.src = '';
         html5Player.style.display = 'block';
-    } else if (mode === 'game') {
-        gamePlayer.style.display = 'block';
+    } else if (mode === 'web') {
+        if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+            ytPlayer.pauseVideo();
+        }
+        ytPlayerContainer.classList.remove('active');
+        ytPlayerContainer.style.display = 'none';
+        html5Player.style.display = 'none';
+        html5Player.pause();
+        webIframe.style.display = 'block';
     }
 }
 
@@ -134,16 +141,6 @@ loadVideoBtn.addEventListener('click', () => {
     }
 });
 
-loadGameBtn.addEventListener('click', () => {
-    const url = gameUrlInput.value.trim();
-    if (url) {
-        gamePlayer.src = url;
-        setDisplayMode('game');
-        socket.emit('game-change', url);
-    } else {
-        alert('URL do Jogo inválida!');
-    }
-});
 
 localVideoFile.addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -190,19 +187,36 @@ subtitleFile.addEventListener('change', (e) => {
     reader.readAsText(file);
 });
 
+subtitleFile.addEventListener('change', (e) => {
+    // ... logic remains
+});
+
+// Event listener for Web Iframe
+loadWebBtn.addEventListener('click', () => {
+    let url = webUrlInput.value.trim();
+    if (!url) return;
+    
+    if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+    }
+    
+    webIframe.src = url;
+    setDisplayMode('web');
+    socket.emit('video-change', { type: 'web', url: url });
+});
+
 // --- Socket Sync Events ---
 socket.on('video-change', (data) => {
     if (data.type === 'youtube') {
         initYtPlayer(data.id);
     } else if (data.type === 'local') {
         alert('O outro usuário selecionou o arquivo: ' + data.filename + '\nPor favor, clique em "Carregar Arquivo" e selecione o mesmo arquivo de vídeo no seu aparelho para sincronizar as telas.');
+    } else if (data.type === 'web') {
+        webIframe.src = data.url;
+        setDisplayMode('web');
     }
 });
 
-socket.on('game-change', (url) => {
-    gamePlayer.src = url;
-    setDisplayMode('game');
-});
 
 socket.on('video-play', (time) => {
     isSyncing = true;
